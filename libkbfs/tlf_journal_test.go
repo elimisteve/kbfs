@@ -410,10 +410,11 @@ func testTLFJournalBlockOpBasic(t *testing.T, ver MetadataVer) {
 		tempdir, config, ctx, cancel, tlfJournal, delegate)
 
 	putBlock(ctx, t, config, tlfJournal, []byte{1, 2, 3, 4})
-	numFlushed, rev, err := tlfJournal.flushBlockEntries(ctx, 1)
+	numFlushed, rev, converted, err := tlfJournal.flushBlockEntries(ctx, 1)
 	require.NoError(t, err)
 	require.Equal(t, 1, numFlushed)
 	require.Equal(t, rev, MetadataRevisionUninitialized)
+	require.False(t, converted)
 }
 
 func testTLFJournalBlockOpBusyPause(t *testing.T, ver MetadataVer) {
@@ -492,10 +493,11 @@ func testTLFJournalBlockOpDiskLimit(t *testing.T, ver MetadataVer) {
 			ctx, id, bCtx, data2, serverHalf)
 	}()
 
-	numFlushed, rev, err := tlfJournal.flushBlockEntries(ctx, 1)
+	numFlushed, rev, converted, err := tlfJournal.flushBlockEntries(ctx, 1)
 	require.NoError(t, err)
 	require.Equal(t, 1, numFlushed)
 	require.Equal(t, rev, MetadataRevisionUninitialized)
+	require.False(t, converted)
 
 	// Fake an MD flush.
 	md := config.makeMD(MetadataRevisionInitial, MdID{})
